@@ -14,8 +14,10 @@ class Url:
 
     @staticmethod
     def get_real_url(url_str: str):
-        return requests.head(url_str, stream=True).headers['Location']
-
+        try:
+            return requests.head(url_str, stream=True).headers['Location']
+        except KeyError:
+            return url_str
     @staticmethod
     def is_twitter_url(url_str: str):
         return True if "twitter.com" in Url.get_real_url(url_str) else False

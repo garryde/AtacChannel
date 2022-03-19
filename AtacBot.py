@@ -20,7 +20,7 @@ str_del_list = con.read_list("str_del_list")
 
 tg = util.Telegram(bot_token)
 dl = util.Deepl(deepl_auth_key)
-tw = util.Tweet(tweets_sent_list,tweets_blocked_list)
+tw = util.Tweet(tweets_sent_list, tweets_blocked_list)
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
 while True:
@@ -40,7 +40,7 @@ while True:
             # Delete twitter url
             tweet_text = util.Url.del_twitter_url(tweet_text)
             # delete URl and Translate
-            tweet_zh = dl.translate_to_zh(util.Url.del_url(tweet_text))
+            tweet_zh = dl.translate_to_zh(util.Url.del_url(tweet_text)).replace("#Metro", "Metro")
 
             message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n🇨🇳\n" + tweet_zh
             tg.send_message(chat_id, message)
@@ -48,6 +48,9 @@ while True:
             con.write_config("tweets_sent_list", str(tweets_sent_list))
     except ReadTimeout:
         continue
+    except ConnectionError:
+        continue
+    except:
+        print("********Unknown Exception********")
     finally:
         time.sleep(60)
-
