@@ -7,20 +7,20 @@ import tweepy
 import re
 
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "tweets_sent_list",
-               "tweets_blocked_list", "str_del_list"]
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
 bot_token = con.read_str("bot_token")
 chat_id = con.read_str("chat_id")
 deepl_auth_key = con.read_str("deepl_auth_key")
 tweets_sent_list = con.read_list("tweets_sent_list")
-tweets_blocked_list = con.read_list("tweets_blocked_list")
+tweets_white_list = con.read_list("tweets_white_list")
+tweets_black_list = con.read_list("tweets_black_list")
 str_del_list = con.read_list("str_del_list")
 
 tg = util.Telegram(bot_token)
 dl = util.Deepl(deepl_auth_key)
-tw = util.Tweet(tweets_sent_list, tweets_blocked_list)
+tw = util.Tweet(tweets_sent_list,tweets_white_list, tweets_black_list)
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
 while True:
@@ -31,9 +31,13 @@ while True:
             tweet_id = tweet.id
             tweet_text = tweet.text
             tweet_time = util.Tweet.tweetid_to_dt(tweet_id)
+            # Check whether tweet in white list
+            if len(tweets_white_list) > 0:
+                if not tw.tweet_check_whitelist(tweet_text):
+                    continue
             # Check whether sent and blocked
             if tw.tweet_check_sent(tweet_id): continue
-            if tw.tweet_check_blocked(tweet_text): continue
+            if tw.tweet_check_blacklist(tweet_text): continue
             # Delete useless string
             for str_del in str_del_list:
                 tweet_text = tweet_text.replace(str_del, "")
@@ -50,7 +54,8 @@ while True:
         continue
     except ConnectionError:
         continue
-    except:
+    except Exception as e:
         print("********Unknown Exception********")
+        print(e)
     finally:
         time.sleep(60)

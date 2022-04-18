@@ -3,8 +3,9 @@ import util
 
 
 class Tweet:
-    def __init__(self, tweets_sent_list=[], tweets_blocked_list=[]):
+    def __init__(self, tweets_sent_list=[], tweets_white_list=[], tweets_blocked_list=[]):
         self.tweets_sent_list = tweets_sent_list
+        self.tweets_white_list = tweets_white_list
         self.tweets_blocked_list = tweets_blocked_list
 
     def tweet_add_sent(self, tweet_id: int):
@@ -18,9 +19,25 @@ class Tweet:
         else:
             return False
 
-    def tweet_check_blocked(self, tweet_text: str):
+    def tweet_check_blacklist(self, tweet_text: str):
+        """
+        Check whether tweet include blocked key word.
+        :param tweet_text:
+        :return: Return True if it is blocked.
+        """
         for block_tweet in self.tweets_blocked_list:
-            if block_tweet in tweet_text:
+            if block_tweet.lower() in tweet_text.lower():
+                return True
+        return False
+
+    def tweet_check_whitelist(self, tweet_text: str):
+        """
+        Check whether tweet include whitelist key word.
+        :param tweet_text:
+        :return: Return True if it is in white list.
+        """
+        for allowed_tweet in self.tweets_white_list:
+            if allowed_tweet.lower() in tweet_text.lower():
                 return True
         return False
 
