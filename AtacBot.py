@@ -1,13 +1,11 @@
 import time
-
 from requests import ReadTimeout
-
 import util
 import tweepy
-import re
+
 
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list"]
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list","no_translate_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
 bot_token = con.read_str("bot_token")
@@ -17,10 +15,11 @@ tweets_sent_list = con.read_list("tweets_sent_list")
 tweets_white_list = con.read_list("tweets_white_list")
 tweets_black_list = con.read_list("tweets_black_list")
 str_del_list = con.read_list("str_del_list")
+no_translate_list = con.read_list("no_translate_list")
 
 tg = util.Telegram(bot_token)
 dl = util.Deepl(deepl_auth_key)
-tw = util.Tweet(tweets_sent_list,tweets_white_list, tweets_black_list)
+tw = util.Tweet(tweets_sent_list,tweets_white_list, tweets_black_list, no_translate_list)
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
 while True:
@@ -41,10 +40,16 @@ while True:
             # Delete useless string
             for str_del in str_del_list:
                 tweet_text = tweet_text.replace(str_del, "")
-            # Delete twitter url
+            # Delete twitter url(For all languages)
             tweet_text = util.Url.del_twitter_url(tweet_text)
-            # delete URl and Translate
-            tweet_zh = dl.translate_to_zh(util.Url.del_url(tweet_text)).replace("#Metro", "Metro")
+            # Delete URl(For translated version only)
+            tweet_text_no_url = util.Url.del_url(tweet_text)
+            # protect no-translate words
+            tweet_text_no_url = tw.tweet_convert_before_trans(tweet_text_no_url)
+            # Translate
+            tweet_zh = dl.translate_to_zh(tweet_text_no_url.replace("#Metro", "Metro"))
+            # restore no-translate words
+            tweet_zh = tw.tweet_convert_after_trans(tweet_zh)
 
             message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n🇨🇳\n" + tweet_zh
             tg.send_message(chat_id, message)
