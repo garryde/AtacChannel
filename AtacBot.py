@@ -42,6 +42,8 @@ while True:
                 tweet_text = tweet_text.replace(str_del, "")
             # Delete twitter url(For all languages)
             tweet_text = util.Url.del_twitter_url(tweet_text)
+            # Tweet preprocessing
+            tweet_text = tweet_text.replace("METRO ", "Metro ")
             # Delete URl(For translated version only)
             tweet_text_no_url = util.Url.del_url(tweet_text)
             # protect no-translate words
