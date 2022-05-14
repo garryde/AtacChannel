@@ -1,3 +1,4 @@
+import sys
 import time
 from requests import ReadTimeout
 import util
@@ -5,12 +6,13 @@ import tweepy
 
 
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list","no_translate_list"]
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list","no_translate_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
 bot_token = con.read_str("bot_token")
 chat_id = con.read_str("chat_id")
 deepl_auth_key = con.read_str("deepl_auth_key")
+target_lang = con.read_str("target_lang")
 tweets_sent_list = con.read_list("tweets_sent_list")
 tweets_white_list = con.read_list("tweets_white_list")
 tweets_black_list = con.read_list("tweets_black_list")
@@ -18,8 +20,8 @@ str_del_list = con.read_list("str_del_list")
 no_translate_list = con.read_list("no_translate_list")
 
 tg = util.Telegram(bot_token)
-dl = util.Deepl(deepl_auth_key)
-tw = util.Tweet(tweets_sent_list,tweets_white_list, tweets_black_list, no_translate_list)
+dl = util.Deepl(deepl_auth_key, target_lang)
+tw = util.Tweet(tweets_sent_list, tweets_white_list, tweets_black_list, no_translate_list)
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
 while True:
@@ -49,11 +51,13 @@ while True:
             # protect no-translate words
             tweet_text_no_url = tw.tweet_convert_before_trans(tweet_text_no_url)
             # Translate
-            tweet_zh = dl.translate_to_zh(tweet_text_no_url.replace("#Metro", "Metro"))
+            tweet_zh = dl.translate(tweet_text_no_url.replace("#Metro", "Metro"))
             # restore no-translate words
             tweet_zh = tw.tweet_convert_after_trans(tweet_zh)
+            # Translated tweet processing
+            tweet_zh = tweet_zh.replace("ℹ️", "").replace("👉", "")
 
-            message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n🇨🇳\n" + tweet_zh
+            message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n"+dl.flag+"\n" + tweet_zh
             tg.send_message(chat_id, message)
             tw.tweet_add_sent(tweet_id)
             con.write_config("tweets_sent_list", str(tweets_sent_list))
@@ -64,5 +68,6 @@ while True:
     except Exception as e:
         print("********Unknown Exception********")
         print(e)
+        sys.exit()
     finally:
         time.sleep(60)

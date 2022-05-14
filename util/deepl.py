@@ -1,13 +1,42 @@
 import deepl
+from enum import Enum
 
 
 class Deepl:
-    def __init__(self, auth_key):
+    def __init__(self, auth_key, target_lang="ZH"):
         self.auth_key = auth_key
         self.translator = deepl.Translator(auth_key)
+        self.target_lang = target_lang
+        self.flag = Flags[target_lang.replace("-", "_")].value
 
-    def translate_to_zh(self, message):
-        return str(self.translator.translate_text(message, target_lang="ZH"))
+    def translate(self, message):
+        return str(self.translator.translate_text(message, target_lang=self.target_lang))
 
-    def translate_to_en(self, message):
-        return str(self.translator.translate_text(message, target_lang="EN-GB"))
+
+class Flags(Enum):
+    BG = "🇧🇬"
+    CS = "🇨🇿"
+    DA = "🇩🇰"
+    DE = "🇩🇪"
+    EL = "🇬🇷"
+    EN_GB = "🇬🇧"
+    EN_US = "🇺🇸"
+    ES = "🇪🇸"
+    ET = "🇪🇪"
+    FI = "🇫🇮"
+    FR = "🇫🇷"
+    HU = "🇭🇺"
+    IT = "🇮🇹"
+    JA = "🇯🇵"
+    LT = "🇱🇹"
+    LV = "🇱🇻"
+    NL = "🇳🇱"
+    PL = "🇵🇱"
+    PT_PT = "🇵🇹"
+    PT_BR = "🇧🇷"
+    RO = "🇷🇴"
+    RU = "🇷🇺"
+    SK = "🇸🇰"
+    SL = "🇸🇮"
+    SV = "🇸🇪"
+    ZH = "🇨🇳"
