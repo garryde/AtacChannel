@@ -47,12 +47,13 @@ class Tweet:
 
     def tweet_convert_before_trans(self, tweet_text: str):
         for no_translate in self.no_translate_dic.items():
-            tweet_text.replace(no_translate[0], no_translate[1])
+            tweet_text = tweet_text.replace(no_translate[0], no_translate[1])
         return tweet_text
 
     def tweet_convert_after_trans(self, tweet_text: str):
         for no_translate in self.no_translate_dic_rev.items():
-            tweet_text.replace(no_translate[0], no_translate[1])
+            tweet_text = tweet_text.replace(no_translate[0]+"号", no_translate[1])
+            tweet_text = tweet_text.replace(no_translate[0], no_translate[1])
         return tweet_text
 
     @staticmethod

@@ -45,13 +45,13 @@ while True:
             # Delete twitter url(For all languages)
             tweet_text = util.Url.del_twitter_url(tweet_text)
             # Tweet preprocessing
-            tweet_text = tweet_text.replace("METRO ", "Metro ")
+            tweet_text = tweet_text.replace("METRO ", "Metro ").replace("#Metro", "Metro")
             # Delete URl(For translated version only)
             tweet_text_no_url = util.Url.del_url(tweet_text)
             # protect no-translate words
-            tweet_text_no_url = tw.tweet_convert_before_trans(tweet_text_no_url)
+            tweet_text_no_translate = tw.tweet_convert_before_trans(tweet_text_no_url)
             # Translate
-            tweet_zh = dl.translate(tweet_text_no_url.replace("#Metro", "Metro"))
+            tweet_zh = dl.translate(tweet_text_no_translate)
             # restore no-translate words
             tweet_zh = tw.tweet_convert_after_trans(tweet_zh)
             # Translated tweet processing
