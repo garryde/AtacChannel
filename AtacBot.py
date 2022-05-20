@@ -4,9 +4,9 @@ from requests import ReadTimeout
 import util
 import tweepy
 
-
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list","no_translate_list"]
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "tweets_sent_list",
+               "tweets_white_list", "tweets_black_list", "str_del_list", "no_translate_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
 bot_token = con.read_str("bot_token")
@@ -48,6 +48,7 @@ while True:
             tweet_text = tweet_text.replace("METRO ", "Metro ").replace("#Metro", "Metro")
             # Delete URl(For translated version only)
             tweet_text_no_url = util.Url.del_url(tweet_text)
+            if tweet_text_no_url == "": continue
             # protect no-translate words
             tweet_text_no_translate = tw.tweet_convert_before_trans(tweet_text_no_url)
             # Translate
@@ -57,13 +58,15 @@ while True:
             # Translated tweet processing
             tweet_zh = tweet_zh.replace("ℹ️", "").replace("👉", "")
 
-            message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n"+dl.flag+"\n" + tweet_zh
+            message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n" + dl.flag + "\n" + tweet_zh
             tg.send_message(chat_id, message)
             tw.tweet_add_sent(tweet_id)
             con.write_config("tweets_sent_list", str(tweets_sent_list))
     except ReadTimeout:
         continue
     except ConnectionError:
+        continue
+    except ConnectionAbortedError:
         continue
     except Exception as e:
         print("********Unknown Exception********")
