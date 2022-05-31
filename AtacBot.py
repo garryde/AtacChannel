@@ -1,6 +1,7 @@
 import sys
 import time
-from requests import ReadTimeout
+
+import requests.exceptions
 import util
 import tweepy
 
@@ -62,11 +63,7 @@ while True:
             tg.send_message(chat_id, message)
             tw.tweet_add_sent(tweet_id)
             con.write_config("tweets_sent_list", str(tweets_sent_list))
-    except ReadTimeout:
-        continue
-    except ConnectionError:
-        continue
-    except ConnectionAbortedError:
+    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ConnectionAbortedError):
         continue
     except Exception as e:
         print("********Unknown Exception********")
