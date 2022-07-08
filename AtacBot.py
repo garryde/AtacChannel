@@ -68,6 +68,7 @@ while True:
     except Exception as e:
         print("********Unknown Exception********")
         print(e)
+        tg.send_message(chat_id, "Exception thrown!! Service Stopped!!")
         sys.exit()
     finally:
         time.sleep(60)
