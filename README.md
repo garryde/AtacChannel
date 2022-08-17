@@ -20,16 +20,17 @@ This project is aiming to crawl the Twitter account [@InfoAtac](https://twitter.
 
 ## config.ini
 
-|         Name         |     Type     |                         Description                          |
-| :------------------: | :----------: | :----------------------------------------------------------: |
+|         Name         |     Type     |                                             Description                                              |
+| :------------------: |:------------:|:----------------------------------------------------------------------------------------------------:|
 | twitter_bearer_token |    String    | [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens) |
-|      bot_token       |    String    |     [Telegram Bot Token](https://core.telegram.org/bots)     |
-|       chat_id        |    String    |                     Telegram Channel ID                      |
-|    deepl_auth_key    |    String    | [Deepl API Auth Key](https://www.deepl.com/docs-api/accessing-the-api/) |
-|    target_lang    |    String    | [Target translate language](https://www.deepl.com/zh/docs-api/translating-text/request/) |
-|   tweets_sent_list   | String Array |               Store the last five tweets sent(no need to fill)                |
-|  tweets_white_list   | String Array | Only send tweets that contain keywords (not case sensitive)  |
-|  tweets_black_list   | String Array | Only send tweets that without keywords (not case sensitive)  |
-|     str_del_list     | String Array |  Delete the keyword specified in the Tweet(case sensitive)   |
-|     no_translate_list     | String Array |  Vocabulary not translated    |
+|      bot_token       |    String    |                         [Telegram Bot Token](https://core.telegram.org/bots)                         |
+|       chat_id        |    String    |                                         Telegram Channel ID                                          |
+|    deepl_auth_key    |    String    |               [Deepl API Auth Key](https://www.deepl.com/docs-api/accessing-the-api/)                |
+|    target_lang    |    String    |       [Target translate language](https://www.deepl.com/zh/docs-api/translating-text/request/)       |
+|   heartbeat_monitor   |    String    |                         Heartbeat URL. Leave empty to disable this function.                         |
+|   tweets_sent_list   | String Array |                           Store the last five tweets sent(no need to fill)                           |
+|  tweets_white_list   | String Array |                     Only send tweets that contain keywords (not case sensitive)                      |
+|  tweets_black_list   | String Array |                     Only send tweets that without keywords (not case sensitive)                      |
+|     str_del_list     | String Array |                      Delete the keyword specified in the Tweet(case sensitive)                       |
+|     no_translate_list     | String Array |                                      Vocabulary not translated                                       |
 
