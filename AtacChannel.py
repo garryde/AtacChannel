@@ -1,12 +1,10 @@
-import sys
 import time
-
 import requests.exceptions
 import util
 import tweepy
 
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "tweets_sent_list",
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "heartbeat_monitor", "tweets_sent_list",
                "tweets_white_list", "tweets_black_list", "str_del_list", "no_translate_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
@@ -14,11 +12,13 @@ bot_token = con.read_str("bot_token")
 chat_id = con.read_str("chat_id")
 deepl_auth_key = con.read_str("deepl_auth_key")
 target_lang = con.read_str("target_lang")
+heartbeat_monitor = con.read_str("heartbeat_monitor")
 tweets_sent_list = con.read_list("tweets_sent_list")
 tweets_white_list = con.read_list("tweets_white_list")
 tweets_black_list = con.read_list("tweets_black_list")
 str_del_list = con.read_list("str_del_list")
 no_translate_list = con.read_list("no_translate_list")
+
 
 tg = util.Telegram(bot_token)
 dl = util.Deepl(deepl_auth_key, target_lang)
@@ -26,6 +26,11 @@ tw = util.Tweet(tweets_sent_list, tweets_white_list, tweets_black_list, no_trans
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
 while True:
+    if heartbeat_monitor != "empty":
+        if heartbeat_monitor.startswith("http://") or heartbeat_monitor.startswith("https://"):
+            requests.get(heartbeat_monitor)
+        else:
+            raise Exception("Heartbeat monitor url has to start with http:// or https://")
     # request recent 5 tweets
     try:
         result = twee_client.get_users_tweets(id='370690455', exclude=['replies', 'retweets'], max_results=5)
@@ -63,12 +68,9 @@ while True:
             tg.send_message(chat_id, message)
             tw.tweet_add_sent(tweet_id)
             con.write_config("tweets_sent_list", str(tweets_sent_list))
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError, requests.exceptions.ConnectionAbortedError):
-        continue
     except Exception as e:
         print("********Unknown Exception********")
         print(e)
-        tg.send_message(chat_id, "Exception thrown!! Service Stopped!!")
-        sys.exit()
+        tg.send_message(chat_id, "Exception thrown!! \n" + str(e))
     finally:
         time.sleep(60)
