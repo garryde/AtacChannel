@@ -1,4 +1,5 @@
 import deepl
+import logging
 from enum import Enum
 
 
@@ -10,7 +11,10 @@ class Deepl:
         self.flag = Flags[target_lang.replace("-", "_")].value
 
     def translate(self, message):
-        return str(self.translator.translate_text(message, target_lang=self.target_lang))
+        try:
+            return str(self.translator.translate_text(message, target_lang=self.target_lang))
+        except Exception as e:
+            logging.warning("Translate message wrong; " + str(e))
 
 
 class Flags(Enum):

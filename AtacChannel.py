@@ -2,9 +2,11 @@ import time
 import requests.exceptions
 import util
 import tweepy
+import logging
 
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "heartbeat_monitor", "tweets_sent_list",
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "heartbeat_monitor",
+               "tweets_sent_list",
                "tweets_white_list", "tweets_black_list", "str_del_list", "no_translate_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
@@ -19,21 +21,35 @@ tweets_black_list = con.read_list("tweets_black_list")
 str_del_list = con.read_list("str_del_list")
 no_translate_list = con.read_list("no_translate_list")
 
-
+# objet init
 tg = util.Telegram(bot_token)
 dl = util.Deepl(deepl_auth_key, target_lang)
 tw = util.Tweet(tweets_sent_list, tweets_white_list, tweets_black_list, no_translate_list)
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
+# logger init
+log_format = '%(asctime)s; %(levelname)s; %(message)s'
+logging.basicConfig(filename='logbook.log', encoding='utf-8', level=logging.INFO, format=log_format)
+
+# start loop
 while True:
+    logging.info('System start successfully!')
+    # send heartbeat
     if heartbeat_monitor != "empty":
         if heartbeat_monitor.startswith("http://") or heartbeat_monitor.startswith("https://"):
-            requests.get(heartbeat_monitor)
+            try:
+                requests.get(heartbeat_monitor)
+            except Exception as e:
+                logging.warning("Heartbeat error.")
         else:
             raise Exception("Heartbeat monitor url has to start with http:// or https://")
-    # request recent 5 tweets
+
+    # request recent 5 twetweetsets
     try:
-        result = twee_client.get_users_tweets(id='370690455', exclude=['replies', 'retweets'], max_results=5)
+        try:
+            result = twee_client.get_users_tweets(id='370690455', exclude=['replies', 'retweets'], max_results=5)
+        except Exception as e:
+            logging.warning("Get user tweets wrong; " + str(e))
         for tweet in reversed(result.data):
             tweet_id = tweet.id
             tweet_text = tweet.text
@@ -69,8 +85,6 @@ while True:
             tw.tweet_add_sent(tweet_id)
             con.write_config("tweets_sent_list", str(tweets_sent_list))
     except Exception as e:
-        print("********Unknown Exception********")
-        print(e)
-        tg.send_message(chat_id, "Exception thrown!! \n" + str(e))
+        logging.error("Unknown Error; " + str(e))
     finally:
         time.sleep(60)
