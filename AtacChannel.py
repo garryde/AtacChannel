@@ -30,10 +30,12 @@ twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 # logger init
 log_format = '%(asctime)s; %(levelname)s; %(message)s'
 logging.basicConfig(filename='logbook.log', encoding='utf-8', level=logging.INFO, format=log_format)
+logging.getLogger('deepl').setLevel(logging.ERROR)
+
+logging.info('System start successfully!')
 
 # start loop
 while True:
-    logging.info('System start successfully!')
     # send heartbeat
     if heartbeat_monitor != "empty":
         if heartbeat_monitor.startswith("http://") or heartbeat_monitor.startswith("https://"):
