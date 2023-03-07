@@ -3,7 +3,7 @@ import logging
 from enum import Enum
 
 
-class Deepl:
+class DeeplTool:
     def __init__(self, auth_key, target_lang="ZH"):
         self.auth_key = auth_key
         self.translator = deepl.Translator(auth_key)
@@ -14,7 +14,7 @@ class Deepl:
         try:
             return str(self.translator.translate_text(message, target_lang=self.target_lang))
         except Exception as e:
-            logging.warning("Translate message wrong; " + str(e))
+            logging.warning("DeepL Translate message wrong; " + str(e))
 
 
 class Flags(Enum):

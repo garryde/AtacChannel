@@ -1,18 +1,21 @@
+import asyncio
 import time
+import traceback
+
 import requests.exceptions
 import util
 import tweepy
 import logging
 
 # Configuration
-config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key", "target_lang", "heartbeat_monitor",
-               "tweets_sent_list",
-               "tweets_white_list", "tweets_black_list", "str_del_list", "no_translate_list"]
+config_list = ["twitter_bearer_token", "bot_token", "chat_id", "deepl_auth_key","openai_auth_key", "target_lang", "heartbeat_monitor",
+               "tweets_sent_list", "tweets_white_list", "tweets_black_list", "str_del_list", "no_translate_list"]
 con = util.Config(config_strs=config_list)
 twitter_bearer_token = con.read_str("twitter_bearer_token")
 bot_token = con.read_str("bot_token")
 chat_id = con.read_str("chat_id")
 deepl_auth_key = con.read_str("deepl_auth_key")
+openai_auth_key = con.read_str("openai_auth_key")
 target_lang = con.read_str("target_lang")
 heartbeat_monitor = con.read_str("heartbeat_monitor")
 tweets_sent_list = con.read_list("tweets_sent_list")
@@ -23,7 +26,8 @@ no_translate_list = con.read_list("no_translate_list")
 
 # objet init
 tg = util.Telegram(bot_token)
-dl = util.Deepl(deepl_auth_key, target_lang)
+dl = util.DeeplTool(deepl_auth_key, target_lang)
+oa = util.OpenAiTool(openai_auth_key)
 tw = util.Tweet(tweets_sent_list, tweets_white_list, tweets_black_list, no_translate_list)
 twee_client = tweepy.Client(bearer_token=twitter_bearer_token)
 
@@ -70,6 +74,7 @@ while True:
             tweet_text = util.Url.del_twitter_url(tweet_text)
             # Tweet preprocessing
             tweet_text = tweet_text.replace("METRO ", "Metro ").replace("#Metro", "Metro")
+            tweet_text = tweet_text.replace("ℹ", "").replace("ℹ️", "").replace("👉", "")
             # Delete URl(For translated version only)
             tweet_text_no_url = util.Url.del_url(tweet_text)
             if tweet_text_no_url == "": continue
@@ -80,13 +85,17 @@ while True:
             # restore no-translate words
             tweet_zh = tw.tweet_convert_after_trans(tweet_zh)
             # Translated tweet processing
-            tweet_zh = tweet_zh.replace("ℹ️", "").replace("👉", "")
-
-            message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n" + dl.flag + "\n" + tweet_zh
+            tweet_zh = tweet_zh
+            # OpenAI Translate
+            tweet_zh_oa = oa.translate(tweet_text_no_url)
+            tweet_zh_oa = tweet_zh_oa
+            # Send message
+            message = tweet_time + "\n🇮🇹\n" + tweet_text + "\n" + dl.flag + " DeepL" + "\n" + tweet_zh + "\n" + "🤖 ChatGPT (Beta)" + "\n" + tweet_zh_oa
             tg.send_message(chat_id, message)
             tw.tweet_add_sent(tweet_id)
             con.write_config("tweets_sent_list", str(tweets_sent_list))
     except Exception as e:
+        logging.error(traceback.print_exc())
         logging.error("Unknown Error; " + str(e))
     finally:
         time.sleep(60)
