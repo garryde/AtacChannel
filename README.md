@@ -16,7 +16,12 @@ This project is aiming to crawl the Twitter account [@InfoAtac](https://twitter.
 2. Configure `config.ini`
 3. Rerun `AtacBot.py`
 
+## Translate Service
+Deepl, DeepLX and Openai are supported. You must enter one of `deeplx_url`, `deepl_auth_key`, `openai_auth_key`
 
+If you enter both `deeplx_url` and `deepl_auth_key`, the program will choose DeeplX first.
+
+If you enter both `deeplx_url`, `deepl_auth_key` and `openai_auth_key`, the program will output the result of DeeplX and Openai.
 
 ## config.ini
 
@@ -25,7 +30,9 @@ This project is aiming to crawl the Twitter account [@InfoAtac](https://twitter.
 | twitter_bearer_token |    String    | [Twitter Bearer Token](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens) |
 |      bot_token       |    String    |                         [Telegram Bot Token](https://core.telegram.org/bots)                         |
 |       chat_id        |    String    |                                         Telegram Channel ID                                          |
+|            deeplx_url          |    String    |                     [DeepLX Service URL](https://github.com/OwO-Network/DeepLX)                      |
 |    deepl_auth_key    |    String    |               [Deepl API Auth Key](https://www.deepl.com/docs-api/accessing-the-api/)                |
+|               openai_auth_key       |       String       |               [Openai Auth Key (GPT3.5)](https://platform.openai.com/account/api-keys)               |
 |    target_lang    |    String    |       [Target translate language](https://www.deepl.com/zh/docs-api/translating-text/request/)       |
 |   heartbeat_monitor   |    String    |                         Heartbeat URL. Leave empty to disable this function.                         |
 |   tweets_sent_list   | String Array |                           Store the last five tweets sent(no need to fill)                           |

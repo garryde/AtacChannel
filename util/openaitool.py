@@ -14,7 +14,7 @@ class OpenAiTool:
                 model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system",
-                     "content": f"Please translate the following message from italian into {self.target_lang}:"},
+                     "content": f"Please translate the following message from italian into {self.target_lang} and Do not output irrelevant content:"},
                     {"role": "user", "content": message}
                 ]
             ).choices[0].message.content
